@@ -8,10 +8,35 @@ use Illuminate\Support\Facades\Auth;
 
 class MangaController extends Controller
 {
-    // Affiche tous les mangas
-    public function index()
+    // Affiche tous les mangas avec recherche avancée et filtres
+    public function index(Request $request)
     {
-        $mangas = Manga::paginate(10); // Récupère tous les mangas
+        $query = Manga::query();
+
+        // Recherche avancée par mots-clés
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where('title', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('author', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('description', 'LIKE', "%{$searchTerm}%");
+        }
+
+        // Filtrer par genre
+        if ($request->filled('genre')) {
+            $query->where('genre', $request->genre);
+        }
+
+        // Filtrer par note moyenne
+        if ($request->filled('rating')) {
+            $rating = $request->rating;
+            $query->whereHas('ratings', function ($subQuery) use ($rating) {
+                $subQuery->havingRaw('AVG(rating) >= ?', [$rating]);
+            });
+        }
+
+        // Pagination des résultats
+        $mangas = $query->paginate(10);
+
         return view('mangas.index', compact('mangas'));
     }
 
