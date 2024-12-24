@@ -51,10 +51,29 @@ class MangaController extends Controller
     {
         // Validation des données
         $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required',
+            'title' => [
+                'required',
+                'string',
+                'regex:/^[\w\s]{3,100}$/',
+                'max:100',
+            ],
+            'description' => [
+                'required',
+                'string',
+                'regex:/^[\w\s\.,!?\'"()\-\n]{10,500}$/',
+                'max:500',
+            ],
             'genre' => 'required|string|in:' . implode(',', Manga::GENRES),
-            'author' => 'required|string|max:255',
+            'author' => [
+                'required',
+                'string',
+                'regex:/^[a-zA-Z\s\-]{3,50}$/',
+                'max:50',
+            ],
+        ],[
+            'title.regex' => 'Le titre doit comporter entre 3 et 100 caractères alphanumériques.',
+            'description.regex' => 'La description doit comporter entre 10 et 500 caractères valides.',
+            'author.regex' => 'Le nom de l\'auteur doit comporter entre 3 et 50 lettres.',
         ]);
 
         // Création du manga
@@ -96,10 +115,31 @@ class MangaController extends Controller
 
         // Validation des données
         $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required',
-            'genre' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
+            'title' => [
+            'required',
+            'string',
+            'min:3',
+            'max:255',
+            'regex:/^[\pL\s\d\.\,\']+$/u', // Lettres, chiffres, espaces, certains caractères spéciaux
+        ],
+        'description' => [
+            'required',
+            'string',
+            'min:10',
+            'max:1000',
+        ],
+        'genre' => [
+            'required',
+            'string',
+            'in:' . implode(',', \App\Models\Manga::GENRES),
+        ],
+        'author' => [
+            'required',
+            'string',
+            'min:3',
+            'max:255',
+            'regex:/^[\pL\s\-]+$/u', // Lettres, espaces, tirets
+        ],
         ]);
 
         // Mise à jour du manga
