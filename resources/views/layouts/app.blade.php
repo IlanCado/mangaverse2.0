@@ -6,8 +6,25 @@
     <title>@yield('title', 'Mangaverse')</title>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Inline styles for background fallback */
+        body {
+            background-image: url('/images/back.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+
+        .content-container {
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+            border-radius: 10px; /* Rounded corners */
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        }
+    </style>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container">
@@ -59,12 +76,14 @@
     </nav>
 
     <!-- Contenu principal -->
-    <main class="py-4">
-        @yield('content')
+    <main class="py-4 flex-grow-1">
+        <div class="container content-container">
+            @yield('content')
+        </div>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white text-center py-3 mt-auto">
+    <footer class="bg-dark text-white text-center py-3">
         <p>&copy; 2024 Mangaverse - Tous droits réservés</p>
     </footer>
 

@@ -3,3 +3,42 @@
 @tailwind utilities;
 @import 'bootstrap/dist/css/bootstrap.min.css';
 
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+
+    /* Ajout de l'image de fond */
+    background-image: url('/images/back.png'); /* Chemin relatif */
+    background-size: cover; /* L'image couvre tout l'écran */
+    background-position: center; /* Centre l'image */
+    background-attachment: fixed; /* L'image reste fixe */
+    background-repeat: no-repeat; /* Évite la répétition de l'image */
+}
+
+main {
+    flex: 1;
+}
+
+/* Conteneur avec fond blanc semi-transparent pour le contenu */
+.container {
+    background-color: rgba(255, 255, 255, 0.9); /* Fond blanc avec opacité */
+    padding: 20px;
+    border-radius: 10px; /* Coins arrondis */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Ombre légère */
+}
+
+footer {
+    background-color: #343a40; 
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    position: relative; /* Gère la position relative pour éviter les conflits */
+    bottom: 0;
+    width: 100%;
+}

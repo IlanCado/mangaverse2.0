@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Manga;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,11 +13,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Crée 10 utilisateurs
+        $users = User::factory(10)->create();
 
+        // Crée un utilisateur spécifique pour tester
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+        ]);
+
+        // Crée 50 mangas en associant aléatoirement les utilisateurs
+        Manga::factory(50)->create([
+            'user_id' => $users->random()->id,
         ]);
     }
 }
