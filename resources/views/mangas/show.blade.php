@@ -8,44 +8,40 @@
     <p>{{ $manga->description }}</p>
 
     <hr>
-    <hr>
-<h2>Notez ce manga</h2>
+    <h2>Notez ce manga</h2>
 
 @auth
-    <!-- Vérifiez si l'utilisateur a déjà noté le manga -->
-    @php
-        $userRating = $manga->ratings->where('user_id', auth()->id())->first();
-    @endphp
-
-    <form action="{{ route('ratings.store', $manga) }}" method="POST">
+    <form action="{{ route('ratings.store', $manga) }}" method="POST" id="rating-form">
         @csrf
-        <div class="mb-3">
-            <label for="rating" class="form-label">Votre note (1 à 5) :</label>
-            <select name="rating" id="rating" class="form-select">
-                @for($i = 1; $i <= 5; $i++)
-                    <option value="{{ $i }}" {{ $userRating && $userRating->rating == $i ? 'selected' : '' }}>
-                        {{ $i }}
-                    </option>
+        <div class="rating-container">
+            <div class="rating">
+                @for ($i = 1; $i <= 5; $i++)
+                    <input 
+                        type="radio" 
+                        id="star{{ $i }}" 
+                        name="rating" 
+                        value="{{ $i }}" 
+                        {{ $manga->ratings->where('user_id', auth()->id())->first()?->rating == $i ? 'checked' : '' }} 
+                        onchange="document.getElementById('rating-form').submit();">
+                    <label for="star{{ $i }}">&#9733;</label>
                 @endfor
-            </select>
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary">
-            {{ $userRating ? 'Mettre à jour ma note' : 'Noter' }}
-        </button>
     </form>
-@else
-    <p><a href="{{ route('login') }}">Connectez-vous</a> pour noter ce manga.</p>
+
+   
 @endauth
 
-<!-- Affichage de la moyenne des notes -->
-@if($manga->ratings->count() > 0)
-    <p><strong>Moyenne des notes :</strong> {{ number_format($manga->averageRating(), 1) }} / 5</p>
-    <p><strong>Nombre de votes :</strong> {{ $manga->ratings->count() }}</p>
-@else
-    <p>Aucune note pour ce manga pour l'instant.</p>
-@endif
 
+    <!-- Affichage de la moyenne des notes -->
+    @if($manga->ratings->count() > 0)
+        <p><strong>Moyenne des notes :</strong> {{ number_format($manga->averageRating(), 1) }} / 5 ({{ $manga->ratings->count() }} votes)</p>
+        <p><strong>Nombre de votes :</strong> {{ $manga->ratings->count() }}</p>
+    @else
+        <p>Aucune note pour ce manga pour l'instant.</p>
+    @endif
 
+    <hr>
     <h2>Commentaires</h2>
 
     @if($manga->comments->where('parent_id', null)->isEmpty())

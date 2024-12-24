@@ -42,3 +42,37 @@ footer {
     bottom: 0;
     width: 100%;
 }
+
+.rating-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.rating {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 10px;
+    cursor: pointer;
+    justify-content: center;
+}
+
+.rating input {
+    display: none;
+}
+
+.rating label {
+    font-size: 2.5rem;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.rating label:hover,
+.rating label:hover ~ label,
+.rating input:checked ~ label {
+    color: #FFD700; /* Couleur dorée */
+}
