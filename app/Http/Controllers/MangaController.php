@@ -54,7 +54,8 @@ class MangaController extends Controller
             'title' => [
                 'required',
                 'string',
-                'regex:/^[\w\s]{3,100}$/',
+                'min:3',
+                'regex:/^[\pL\s\d\.\,\-\'"]+$/u',
                 'max:100',
             ],
             'description' => [

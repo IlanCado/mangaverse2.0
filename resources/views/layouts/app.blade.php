@@ -7,7 +7,6 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Inline styles for background fallback */
         body {
             background-image: url('/images/back.png');
             background-size: cover;
@@ -17,10 +16,10 @@
         }
 
         .content-container {
-            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
-            border-radius: 10px; /* Rounded corners */
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -28,41 +27,35 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container">
-            <!-- Logo -->
             <a class="navbar-brand fw-bold" href="{{ route('home') }}">Mangaverse</a>
-
-            <!-- Toggler (mobile) -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
-                    <!-- Lien pour explorer les mangas -->
                     <li class="nav-item mx-2">
                         <a class="nav-link text-white" href="{{ route('home') }}">Explorer les Mangas</a>
                     </li>
-
                     @auth
-                        <!-- Lien vers le dashboard -->
                         <li class="nav-item mx-2">
                             <a class="nav-link text-white" href="{{ route('dashboard') }}">Profil</a>
                         </li>
-
-                        <!-- Lien pour ajouter un manga -->
                         <li class="nav-item mx-2">
                             <a class="btn btn-success text-white px-3" href="{{ route('mangas.create') }}">Ajouter un Manga</a>
                         </li>
-
-                        <!-- Lien pour se déconnecter -->
                         <li class="nav-item mx-2">
                             <form method="POST" action="{{ route('logout') }}" class="d-inline">
                                 @csrf
                                 <button class="btn btn-danger text-white px-3" type="submit">Se déconnecter</button>
                             </form>
                         </li>
+                        @if(auth()->user()->is_admin)
+                            <li class="nav-item mx-2">
+                                <a class="nav-link text-warning fw-bold" href="{{ route('admin.index') }}">Administration</a>
+                            </li>
+                        @endif
                     @else
-                        <!-- Lien pour se connecter et s'inscrire (si déconnecté) -->
                         <li class="nav-item mx-2">
                             <a class="nav-link text-white" href="{{ route('login') }}">Se connecter</a>
                         </li>

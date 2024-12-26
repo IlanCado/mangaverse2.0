@@ -2,31 +2,26 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
+     * Les attributs mass assignable.
      */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'is_admin', // Colonne pour savoir si l'utilisateur est admin
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
+     * Les attributs cachés pour la sérialisation.
      */
     protected $hidden = [
         'password',
@@ -34,20 +29,19 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Les attributs avec casting.
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
-    public function isAdmin(): bool
-{
-    return $this->is_admin;
-}
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'is_admin' => 'boolean', // Casting de la colonne admin en booléen
+    ];
 
+    /**
+     * Vérifie si l'utilisateur est administrateur.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->is_admin; // Utilisation directe de la colonne is_admin
+    }
 }

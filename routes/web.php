@@ -5,6 +5,7 @@ use App\Http\Controllers\MangaController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
 // Page d'accueil : liste des mangas
@@ -13,7 +14,7 @@ Route::get('/', [MangaController::class, 'index'])->name('home');
 // Routes nécessitant une connexion
 Route::middleware(['auth'])->group(function () {
     // Gestion des mangas : ajout, modification, suppression
-    Route::resource('mangas', MangaController::class)->only(['index','show','create', 'store', 'edit', 'update', 'destroy']);
+    Route::resource('mangas', MangaController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update', 'destroy']);
 
     // Tableau de bord
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -36,3 +37,10 @@ Route::middleware(['auth'])->group(function () {
 
 // Authentification
 require __DIR__.'/auth.php';
+
+// Routes d'administration
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+    Route::delete('/admin/mangas/{manga}', [AdminController::class, 'destroyManga'])->name('admin.mangas.destroy');
+    Route::delete('/admin/users/{user}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy');
+});
