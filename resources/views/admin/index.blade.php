@@ -112,6 +112,9 @@
                         <td>{{ $manga->genre }}</td>
                         <td>{{ $manga->user->name ?? 'Utilisateur supprimé' }}</td>
                         <td>
+                            <!-- Modifier -->
+                            <a href="{{ route('admin.mangas.edit', $manga) }}" class="btn btn-warning">Modifier</a>
+
                             <!-- Supprimer -->
                             <form action="{{ route('admin.mangas.destroy', $manga) }}" method="POST" style="display:inline;">
                                 @csrf

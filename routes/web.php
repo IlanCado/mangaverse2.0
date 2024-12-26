@@ -44,4 +44,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/admin/mangas/{manga}', [AdminController::class, 'destroyManga'])->name('admin.mangas.destroy');
     Route::delete('/admin/users/{user}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy');
     Route::post('/admin/mangas/{manga}/validate', [AdminController::class, 'validateManga'])->name('admin.mangas.validate');
+
+    // Ajout de la route pour modifier un manga validé
+    Route::get('/admin/mangas/{manga}/edit', [AdminController::class, 'editManga'])->name('admin.mangas.edit');
+    Route::put('/admin/mangas/{manga}', [AdminController::class, 'updateManga'])->name('admin.mangas.update');
 });

@@ -14,7 +14,6 @@ class AdminController extends Controller
      */
     public function index()
     {
-        // Récupérer tous les utilisateurs et séparer les mangas en attente et validés
         $users = User::all();
         $mangasPending = Manga::where('is_validated', false)->with('user')->get();
         $mangasValidated = Manga::where('is_validated', true)->with('user')->get();
@@ -24,13 +23,9 @@ class AdminController extends Controller
 
     /**
      * Supprime un manga.
-     *
-     * @param Manga $manga
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroyManga(Manga $manga)
     {
-        // Supprime l'image associée si elle existe
         if ($manga->image_path) {
             Storage::disk('public')->delete($manga->image_path);
         }
@@ -42,13 +37,9 @@ class AdminController extends Controller
 
     /**
      * Supprime un utilisateur.
-     *
-     * @param User $user
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroyUser(User $user)
     {
-        // Supprime l'utilisateur
         $user->delete();
 
         return redirect()->route('admin.index')->with('success', 'Utilisateur supprimé avec succès.');
@@ -56,33 +47,66 @@ class AdminController extends Controller
 
     /**
      * Valide un manga et ajoute une image si elle est fournie.
-     *
-     * @param Request $request
-     * @param Manga $manga
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function validateManga(Request $request, Manga $manga)
     {
-        // Validation de l'image si elle est fournie
         $request->validate([
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Max 2MB
         ]);
 
         if ($request->hasFile('image')) {
-            // Supprime l'image précédente si elle existe
             if ($manga->image_path) {
                 Storage::disk('public')->delete($manga->image_path);
             }
 
-            // Enregistre la nouvelle image
             $imagePath = $request->file('image')->store('manga_images', 'public');
             $manga->image_path = $imagePath;
         }
 
-        // Valide le manga
         $manga->is_validated = true;
         $manga->save();
 
         return redirect()->route('admin.index')->with('success', 'Manga validé avec succès !');
+    }
+
+    /**
+     * Affiche le formulaire pour modifier un manga validé.
+     */
+    public function editManga(Manga $manga)
+    {
+        return view('admin.edit', compact('manga'));
+    }
+
+    /**
+     * Met à jour les informations d'un manga validé.
+     */
+    public function updateManga(Request $request, Manga $manga)
+    {
+        $request->validate([
+            'title' => 'required|string|min:3|max:255',
+            'author' => 'required|string|min:3|max:255',
+            'genre' => 'required|string|in:' . implode(',', Manga::GENRES),
+            'description' => 'required|string|min:10|max:1000',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Max 2MB
+        ]);
+
+        if ($request->hasFile('image')) {
+            if ($manga->image_path) {
+                Storage::disk('public')->delete($manga->image_path);
+            }
+
+            $imagePath = $request->file('image')->store('manga_images', 'public');
+            $manga->image_path = $imagePath;
+        }
+
+        $manga->update([
+            'title' => $request->title,
+            'author' => $request->author,
+            'genre' => $request->genre,
+            'description' => $request->description,
+            'image_path' => $manga->image_path ?? $manga->image_path,
+        ]);
+
+        return redirect()->route('admin.index')->with('success', 'Manga modifié avec succès.');
     }
 }

@@ -60,7 +60,7 @@
 
                         <!-- Contenu principal -->
                         <div class="ms-3 flex-grow-1">
-                            <h5 class="fw-bold text-primary">{{ $manga->title }}</h5>
+                        <a href="{{ route('mangas.show', $manga) }}" class="fw-bold text-primary">{{ $manga->title }}</a>
                             <h6 class="text-muted">Auteur : {{ $manga->author }}</h6>
                             <p class="text-muted mb-1"><strong>Genre :</strong> {{ $manga->genre }}</p>
                             <p class="fw-bold mt-2">Note Moyenne : 
