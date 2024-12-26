@@ -121,7 +121,7 @@ class MangaController extends Controller
                 'string',
                 'min:3',
                 'max:255',
-                'regex:/^[\pL\s\d\.\,\']+$/u',
+                'regex:/^[\pL\s\d\.\,\-\'"]+$/u',
             ],
             'description' => [
                 'required',
@@ -132,7 +132,7 @@ class MangaController extends Controller
             'genre' => [
                 'required',
                 'string',
-                'in:' . implode(',', \App\Models\Manga::GENRES),
+                'in:' . implode(',', Manga::GENRES),
             ],
             'author' => [
                 'required',
@@ -141,9 +141,22 @@ class MangaController extends Controller
                 'max:255',
                 'regex:/^[\pL\s\-]+$/u',
             ],
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:4096', // Image optionnelle
         ]);
 
-        // Mise à jour du manga
+        // Met à jour l'image si elle est fournie
+        if ($request->hasFile('image')) {
+            // Supprime l'ancienne image si elle existe
+            if ($manga->image_path) {
+                Storage::disk('public')->delete($manga->image_path);
+            }
+
+            // Stocke la nouvelle image
+            $imagePath = $request->file('image')->store('manga_images', 'public');
+            $manga->image_path = $imagePath;
+        }
+
+        // Mise à jour des autres données
         $manga->update($request->only('title', 'description', 'genre', 'author'));
 
         return redirect()->route('mangas.index')->with('success', 'Manga mis à jour avec succès !');
@@ -155,6 +168,11 @@ class MangaController extends Controller
         // Vérifie si l'utilisateur est autorisé
         if ($manga->user_id !== Auth::id() && !Auth::user()->is_admin) {
             return redirect()->route('mangas.index')->with('error', 'Vous n\'avez pas la permission.');
+        }
+
+        // Supprime l'image associée si elle existe
+        if ($manga->image_path) {
+            Storage::disk('public')->delete($manga->image_path);
         }
 
         $manga->delete();
