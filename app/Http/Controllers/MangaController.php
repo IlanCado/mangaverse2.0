@@ -7,12 +7,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Class MangaController
+ *
+ * Gère les fonctionnalités liées aux mangas : affichage, création, modification, suppression et validation.
+ */
 class MangaController extends Controller
 {
-    // Affiche tous les mangas validés avec recherche avancée, filtres et tri
+    /**
+     * Affiche la liste des mangas validés avec recherche, filtres et tri.
+     *
+     * @param Request $request La requête HTTP contenant les paramètres de recherche, filtres et tri.
+     * @return \Illuminate\Contracts\View\View La vue affichant la liste des mangas.
+     */
     public function index(Request $request)
     {
-        $query = Manga::where('is_validated', true); // Affiche uniquement les mangas validés
+        $query = Manga::where('is_validated', true);
 
         // Recherche avancée par mots-clés
         if ($request->filled('search')) {
@@ -53,22 +63,29 @@ class MangaController extends Controller
             }
         }
 
-        // Pagination des résultats
         $mangas = $query->paginate(10);
 
         return view('mangas.index', compact('mangas'));
     }
 
-    // Affiche le formulaire pour créer un manga
+    /**
+     * Affiche le formulaire pour ajouter un manga.
+     *
+     * @return \Illuminate\Contracts\View\View La vue du formulaire de création de manga.
+     */
     public function create()
     {
         return view('mangas.create');
     }
 
-    // Enregistre un manga dans la base de données (en attente de validation)
+    /**
+     * Enregistre un nouveau manga dans la base de données.
+     *
+     * @param Request $request La requête HTTP contenant les données du manga.
+     * @return \Illuminate\Http\RedirectResponse Redirection vers la liste des mangas avec un message de succès.
+     */
     public function store(Request $request)
     {
-        // Validation des données
         $request->validate([
             'title' => 'required|string|min:3|max:100',
             'description' => 'required|string|min:10|max:500',
@@ -76,7 +93,6 @@ class MangaController extends Controller
             'author' => 'required|string|min:3|max:50',
         ]);
 
-        // Création du manga en attente de validation
         Manga::create([
             'title' => $request->title,
             'description' => $request->description,
@@ -89,7 +105,13 @@ class MangaController extends Controller
         return redirect()->route('mangas.index')->with('success', 'Manga ajouté en attente de validation.');
     }
 
-    // Affiche les détails d'un manga spécifique
+    /**
+     * Affiche les détails d'un manga spécifique.
+     *
+     * @param Manga $manga Le manga à afficher.
+     * @return \Illuminate\Contracts\View\View La vue affichant les détails du manga.
+     * @throws \Symfony\Component\HttpKernel\Exception\HttpException Si l'accès est non autorisé.
+     */
     public function show(Manga $manga)
     {
         if (!$manga->is_validated && !Auth::user()->is_admin) {
@@ -99,7 +121,12 @@ class MangaController extends Controller
         return view('mangas.show', compact('manga'));
     }
 
-    // Affiche le formulaire pour modifier un manga
+    /**
+     * Affiche le formulaire pour modifier un manga existant.
+     *
+     * @param Manga $manga Le manga à modifier.
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse La vue du formulaire de modification ou une redirection avec un message d'erreur.
+     */
     public function edit(Manga $manga)
     {
         if ($manga->user_id !== Auth::id() && !Auth::user()->is_admin) {
@@ -109,7 +136,13 @@ class MangaController extends Controller
         return view('mangas.edit', compact('manga'));
     }
 
-    // Met à jour un manga dans la base de données
+    /**
+     * Met à jour un manga existant dans la base de données.
+     *
+     * @param Request $request La requête HTTP contenant les nouvelles données du manga.
+     * @param Manga $manga Le manga à mettre à jour.
+     * @return \Illuminate\Http\RedirectResponse Redirection vers la liste des mangas avec un message de succès.
+     */
     public function update(Request $request, Manga $manga)
     {
         if ($manga->user_id !== Auth::id() && !Auth::user()->is_admin) {
@@ -124,7 +157,6 @@ class MangaController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
         ]);
 
-        // Met à jour l'image si elle est fournie
         if ($request->hasFile('image')) {
             if ($manga->image_path) {
                 Storage::disk('public')->delete($manga->image_path);
@@ -139,7 +171,12 @@ class MangaController extends Controller
         return redirect()->route('mangas.index')->with('success', 'Manga mis à jour avec succès !');
     }
 
-    // Supprime un manga de la base de données
+    /**
+     * Supprime un manga de la base de données.
+     *
+     * @param Manga $manga Le manga à supprimer.
+     * @return \Illuminate\Http\RedirectResponse Redirection vers la liste des mangas avec un message de succès.
+     */
     public function destroy(Manga $manga)
     {
         if ($manga->user_id !== Auth::id() && !Auth::user()->is_admin) {

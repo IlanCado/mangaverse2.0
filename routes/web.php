@@ -8,13 +8,26 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
+/**
+ * Register the application's web routes.
+ *
+ * These routes handle navigation and actions for authenticated and non-authenticated users,
+ * including routes for the homepage, dashboard, administration panel, and CRUD operations
+ * for mangas, comments, ratings, and profiles.
+ */
+
 // Page d'accueil : liste des mangas validés uniquement
 Route::get('/', [MangaController::class, 'index'])->name('home');
 
-// Routes nécessitant une connexion
+/**
+ * Routes nécessitant une connexion.
+ * Les utilisateurs doivent être connectés pour accéder à ces routes.
+ */
 Route::middleware(['auth'])->group(function () {
     // Gestion des mangas : ajout, modification, suppression
-    Route::resource('mangas', MangaController::class)->only(['index', 'show', 'create', 'store', 'edit', 'update', 'destroy']);
+    Route::resource('mangas', MangaController::class)->only([
+        'index', 'show', 'create', 'store', 'edit', 'update', 'destroy',
+    ]);
 
     // Tableau de bord
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -38,14 +51,20 @@ Route::middleware(['auth'])->group(function () {
 // Authentification
 require __DIR__.'/auth.php';
 
-// Routes d'administration
+/**
+ * Routes d'administration.
+ * Ces routes nécessitent une connexion et des privilèges d'administrateur.
+ */
 Route::middleware(['auth', 'admin'])->group(function () {
+    // Page principale de l'administration
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
-    Route::delete('/admin/mangas/{manga}', [AdminController::class, 'destroyManga'])->name('admin.mangas.destroy');
-    Route::delete('/admin/users/{user}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy');
-    Route::post('/admin/mangas/{manga}/validate', [AdminController::class, 'validateManga'])->name('admin.mangas.validate');
 
-    // Ajout de la route pour modifier un manga validé
+    // Gestion des mangas dans l'administration
+    Route::delete('/admin/mangas/{manga}', [AdminController::class, 'destroyManga'])->name('admin.mangas.destroy');
+    Route::post('/admin/mangas/{manga}/validate', [AdminController::class, 'validateManga'])->name('admin.mangas.validate');
     Route::get('/admin/mangas/{manga}/edit', [AdminController::class, 'editManga'])->name('admin.mangas.edit');
     Route::put('/admin/mangas/{manga}', [AdminController::class, 'updateManga'])->name('admin.mangas.update');
+
+    // Gestion des utilisateurs dans l'administration
+    Route::delete('/admin/users/{user}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy');
 });

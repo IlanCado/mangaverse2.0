@@ -7,10 +7,20 @@ use App\Models\Manga;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * Class AdminController
+ * 
+ * Gère les fonctionnalités d'administration, y compris la validation, la suppression,
+ * et la mise à jour des mangas, ainsi que la gestion des utilisateurs.
+ */
 class AdminController extends Controller
 {
     /**
-     * Affiche la page d'administration avec les mangas en attente et validés.
+     * Affiche la page d'administration.
+     *
+     * Récupère les utilisateurs, les mangas en attente de validation et les mangas validés.
+     *
+     * @return \Illuminate\Contracts\View\View La vue d'administration.
      */
     public function index()
     {
@@ -22,7 +32,12 @@ class AdminController extends Controller
     }
 
     /**
-     * Supprime un manga.
+     * Supprime un manga validé ou en attente.
+     *
+     * Supprime également l'image associée du stockage si elle existe.
+     *
+     * @param Manga $manga Le manga à supprimer.
+     * @return \Illuminate\Http\RedirectResponse Redirige vers la page d'administration.
      */
     public function destroyManga(Manga $manga)
     {
@@ -37,6 +52,9 @@ class AdminController extends Controller
 
     /**
      * Supprime un utilisateur.
+     *
+     * @param User $user L'utilisateur à supprimer.
+     * @return \Illuminate\Http\RedirectResponse Redirige vers la page d'administration.
      */
     public function destroyUser(User $user)
     {
@@ -46,7 +64,11 @@ class AdminController extends Controller
     }
 
     /**
-     * Valide un manga et ajoute une image si elle est fournie.
+     * Valide un manga et, si fourni, ajoute une image.
+     *
+     * @param Request $request La requête HTTP contenant les données de validation.
+     * @param Manga $manga Le manga à valider.
+     * @return \Illuminate\Http\RedirectResponse Redirige vers la page d'administration.
      */
     public function validateManga(Request $request, Manga $manga)
     {
@@ -71,6 +93,9 @@ class AdminController extends Controller
 
     /**
      * Affiche le formulaire pour modifier un manga validé.
+     *
+     * @param Manga $manga Le manga à modifier.
+     * @return \Illuminate\Contracts\View\View La vue de modification du manga.
      */
     public function editManga(Manga $manga)
     {
@@ -79,6 +104,10 @@ class AdminController extends Controller
 
     /**
      * Met à jour les informations d'un manga validé.
+     *
+     * @param Request $request La requête HTTP contenant les nouvelles données du manga.
+     * @param Manga $manga Le manga à mettre à jour.
+     * @return \Illuminate\Http\RedirectResponse Redirige vers la page d'administration.
      */
     public function updateManga(Request $request, Manga $manga)
     {

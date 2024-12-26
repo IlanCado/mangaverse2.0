@@ -5,6 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class Rating
+ *
+ * Modèle représentant une note attribuée à un manga par un utilisateur.
+ *
+ * @package App\Models
+ *
+ * @property int $id
+ * @property int $user_id
+ * @property int $manga_id
+ * @property int $rating
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ *
+ * @property-read \App\Models\User $user
+ * @property-read \App\Models\Manga $manga
+ */
 class Rating extends Model
 {
     use HasFactory;

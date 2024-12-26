@@ -5,12 +5,36 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class Manga
+ *
+ * Modèle représentant un manga dans l'application.
+ *
+ * @package App\Models
+ *
+ * @property int $id
+ * @property string $title
+ * @property string $description
+ * @property string $genre
+ * @property string $author
+ * @property int $user_id
+ * @property bool $is_validated
+ * @property string|null $image_path
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ *
+ * @property-read \App\Models\User $user
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Comment[] $comments
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Rating[] $ratings
+ */
 class Manga extends Model
 {
     use HasFactory;
 
     /**
      * Les genres disponibles pour les mangas.
+     *
+     * @var array
      */
     public const GENRES = [
         'Action',
@@ -39,8 +63,8 @@ class Manga extends Model
         'genre',        // Genre du manga
         'author',       // Auteur du manga
         'user_id',      // ID de l'utilisateur ayant créé le manga
-        'is_validated', //Validé par admin
-        'image_path',   // image rajouté par admin
+        'is_validated', // Indique si le manga est validé par un administrateur
+        'image_path',   // Chemin de l'image associée
     ];
 
     /**
@@ -74,9 +98,9 @@ class Manga extends Model
     }
 
     /**
-     * Calcule la moyenne des notes.
+     * Calcule la moyenne des notes pour ce manga.
      *
-     * @return float|null
+     * @return float|null La moyenne des notes ou null si aucune note n'existe.
      */
     public function averageRating()
     {
