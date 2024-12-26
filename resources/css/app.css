@@ -76,3 +76,15 @@ footer {
 .rating input:checked ~ label {
     color: #FFD700; /* Couleur dorée */
 }
+
+
+.fa-star {
+    font-size: 1.5rem;
+    color: lightgray;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.fa-star.checked {
+    color: gold;
+}

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 class MangaController extends Controller
 {
-    // Affiche tous les mangas validés avec recherche avancée et filtres
+    // Affiche tous les mangas validés avec recherche avancée, filtres et tri
     public function index(Request $request)
     {
         $query = Manga::where('is_validated', true); // Affiche uniquement les mangas validés
@@ -29,6 +29,30 @@ class MangaController extends Controller
             $query->where('genre', $request->genre);
         }
 
+        // Tri des résultats
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'best_rating':
+                    $query->withAvg('ratings', 'rating')->orderByDesc('ratings_avg_rating');
+                    break;
+                case 'worst_rating':
+                    $query->withAvg('ratings', 'rating')->orderBy('ratings_avg_rating');
+                    break;
+                case 'most_votes':
+                    $query->withCount('ratings')->orderByDesc('ratings_count');
+                    break;
+                case 'least_votes':
+                    $query->withCount('ratings')->orderBy('ratings_count');
+                    break;
+                case 'most_comments':
+                    $query->withCount('comments')->orderByDesc('comments_count');
+                    break;
+                case 'least_comments':
+                    $query->withCount('comments')->orderBy('comments_count');
+                    break;
+            }
+        }
+
         // Pagination des résultats
         $mangas = $query->paginate(10);
 
@@ -46,30 +70,10 @@ class MangaController extends Controller
     {
         // Validation des données
         $request->validate([
-            'title' => [
-                'required',
-                'string',
-                'min:3',
-                'regex:/^[\pL\s\d\.\,\-\'"]+$/u',
-                'max:100',
-            ],
-            'description' => [
-                'required',
-                'string',
-                'regex:/^[\w\s\.,!?\'"()\-\n]{10,500}$/',
-                'max:500',
-            ],
+            'title' => 'required|string|min:3|max:100',
+            'description' => 'required|string|min:10|max:500',
             'genre' => 'required|string|in:' . implode(',', Manga::GENRES),
-            'author' => [
-                'required',
-                'string',
-                'regex:/^[a-zA-Z\s\-]{3,50}$/',
-                'max:50',
-            ],
-        ], [
-            'title.regex' => 'Le titre doit comporter entre 3 et 100 caractères alphanumériques.',
-            'description.regex' => 'La description doit comporter entre 10 et 500 caractères valides.',
-            'author.regex' => 'Le nom de l\'auteur doit comporter entre 3 et 50 lettres.',
+            'author' => 'required|string|min:3|max:50',
         ]);
 
         // Création du manga en attente de validation
@@ -78,8 +82,8 @@ class MangaController extends Controller
             'description' => $request->description,
             'genre' => $request->genre,
             'author' => $request->author,
-            'user_id' => Auth::id(), // Associe le manga à l'utilisateur connecté
-            'is_validated' => false, // Défini comme non validé
+            'user_id' => Auth::id(),
+            'is_validated' => false,
         ]);
 
         return redirect()->route('mangas.index')->with('success', 'Manga ajouté en attente de validation.');
@@ -98,7 +102,6 @@ class MangaController extends Controller
     // Affiche le formulaire pour modifier un manga
     public function edit(Manga $manga)
     {
-        // Vérifie si l'utilisateur est autorisé à modifier le manga
         if ($manga->user_id !== Auth::id() && !Auth::user()->is_admin) {
             return redirect()->route('mangas.index')->with('error', 'Vous n\'avez pas la permission.');
         }
@@ -109,54 +112,28 @@ class MangaController extends Controller
     // Met à jour un manga dans la base de données
     public function update(Request $request, Manga $manga)
     {
-        // Vérifie si l'utilisateur est autorisé
         if ($manga->user_id !== Auth::id() && !Auth::user()->is_admin) {
             return redirect()->route('mangas.index')->with('error', 'Vous n\'avez pas la permission.');
         }
 
-        // Validation des données
         $request->validate([
-            'title' => [
-                'required',
-                'string',
-                'min:3',
-                'max:255',
-                'regex:/^[\pL\s\d\.\,\-\'"]+$/u',
-            ],
-            'description' => [
-                'required',
-                'string',
-                'min:10',
-                'max:1000',
-            ],
-            'genre' => [
-                'required',
-                'string',
-                'in:' . implode(',', Manga::GENRES),
-            ],
-            'author' => [
-                'required',
-                'string',
-                'min:3',
-                'max:255',
-                'regex:/^[\pL\s\-]+$/u',
-            ],
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:4096', // Image optionnelle
+            'title' => 'required|string|min:3|max:255',
+            'description' => 'required|string|min:10|max:1000',
+            'genre' => 'required|string|in:' . implode(',', Manga::GENRES),
+            'author' => 'required|string|min:3|max:255',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
         ]);
 
         // Met à jour l'image si elle est fournie
         if ($request->hasFile('image')) {
-            // Supprime l'ancienne image si elle existe
             if ($manga->image_path) {
                 Storage::disk('public')->delete($manga->image_path);
             }
 
-            // Stocke la nouvelle image
             $imagePath = $request->file('image')->store('manga_images', 'public');
             $manga->image_path = $imagePath;
         }
 
-        // Mise à jour des autres données
         $manga->update($request->only('title', 'description', 'genre', 'author'));
 
         return redirect()->route('mangas.index')->with('success', 'Manga mis à jour avec succès !');
@@ -165,12 +142,10 @@ class MangaController extends Controller
     // Supprime un manga de la base de données
     public function destroy(Manga $manga)
     {
-        // Vérifie si l'utilisateur est autorisé
         if ($manga->user_id !== Auth::id() && !Auth::user()->is_admin) {
             return redirect()->route('mangas.index')->with('error', 'Vous n\'avez pas la permission.');
         }
 
-        // Supprime l'image associée si elle existe
         if ($manga->image_path) {
             Storage::disk('public')->delete($manga->image_path);
         }

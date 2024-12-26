@@ -12,7 +12,26 @@
         </div>
         <div class="col-md-8">
             <div class="card shadow-sm p-4">
-                <h1 class="card-title text-primary">{{ $manga->title }}</h1>
+                <div class="d-flex align-items-center justify-content-between">
+                    <h1 class="card-title text-primary me-3">{{ $manga->title }}</h1>
+                    @auth
+                        <div id="interactive-rating" class="interactive-rating">
+                            @for ($i = 1; $i <= 5; $i++)
+                                <span 
+                                    class="star {{ $manga->ratings->where('user_id', auth()->id())->first()?->rating >= $i ? 'selected' : '' }}" 
+                                    data-value="{{ $i }}">
+                                    &#9733;
+                                </span>
+                            @endfor
+                        </div>
+                        <form action="{{ route('ratings.store', $manga) }}" method="POST" id="rating-form" class="d-none">
+                            @csrf
+                            <input type="hidden" name="rating" id="rating-input" value="{{ $manga->ratings->where('user_id', auth()->id())->first()?->rating }}">
+                        </form>
+                    @else
+                        <p><a href="{{ route('login') }}" class="text-primary">Connectez-vous</a> pour noter ce manga.</p>
+                    @endauth
+                </div>
                 <h4 class="card-subtitle mb-3 text-muted">Par {{ $manga->author }}</h4>
                 <p><strong>Genre :</strong> {{ $manga->genre }}</p>
                 <p><strong>Description :</strong> {{ $manga->description }}</p>
@@ -23,30 +42,6 @@
                     </span>
                 </p>
                 <p><strong>Nombre de votes :</strong> {{ $manga->ratings->count() }}</p>
-
-                <!-- Section de notation -->
-                @auth
-                    <form action="{{ route('ratings.store', $manga) }}" method="POST" id="rating-form" class="mt-4">
-                        @csrf
-                        <div class="rating-container d-flex align-items-center">
-                            <strong class="me-3">Notez :</strong>
-                            <div class="rating">
-                                @for ($i = 1; $i <= 5; $i++)
-                                    <input 
-                                        type="radio" 
-                                        id="star{{ $i }}" 
-                                        name="rating" 
-                                        value="{{ $i }}" 
-                                        {{ $manga->ratings->where('user_id', auth()->id())->first()?->rating == $i ? 'checked' : '' }} 
-                                        onchange="document.getElementById('rating-form').submit();">
-                                    <label for="star{{ $i }}">&#9733;</label>
-                                @endfor
-                            </div>
-                        </div>
-                    </form>
-                @else
-                    <p class="mt-3"><a href="{{ route('login') }}" class="text-primary">Connectez-vous</a> pour noter ce manga.</p>
-                @endauth
             </div>
         </div>
     </div>
@@ -70,7 +65,6 @@
                                     <p>{{ $comment->content }}</p>
                                 </div>
                                 <div>
-                                    <!-- Actions pour le commentaire -->
                                     @if(auth()->id() === $comment->user_id || auth()->user()->is_admin)
                                         <a href="{{ route('comments.edit', $comment) }}" class="btn btn-warning btn-sm">Modifier</a>
                                         <form action="{{ route('comments.destroy', $comment) }}" method="POST" style="display:inline;">
@@ -137,4 +131,48 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const stars = document.querySelectorAll('#interactive-rating .star');
+        const ratingForm = document.getElementById('rating-form');
+        const ratingInput = document.getElementById('rating-input');
+
+        stars.forEach(star => {
+            star.addEventListener('mouseover', () => {
+                stars.forEach(s => s.classList.remove('hovered'));
+                for (let i = 0; i < star.dataset.value; i++) {
+                    stars[i].classList.add('hovered');
+                }
+            });
+
+            star.addEventListener('mouseleave', () => {
+                stars.forEach(s => s.classList.remove('hovered'));
+            });
+
+            star.addEventListener('click', () => {
+                stars.forEach(s => s.classList.remove('selected'));
+                for (let i = 0; i < star.dataset.value; i++) {
+                    stars[i].classList.add('selected');
+                }
+                ratingInput.value = star.dataset.value;
+                ratingForm.submit();
+            });
+        });
+    });
+</script>
+
+<style>
+    .interactive-rating .star {
+        font-size: 2.5rem;
+        color: #ccc;
+        cursor: pointer;
+        transition: color 0.2s ease-in-out;
+    }
+
+    .interactive-rating .star.hovered,
+    .interactive-rating .star.selected {
+        color: gold;
+    }
+</style>
 @endsection
