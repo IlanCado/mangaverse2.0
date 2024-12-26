@@ -39,6 +39,8 @@ class Manga extends Model
         'genre',        // Genre du manga
         'author',       // Auteur du manga
         'user_id',      // ID de l'utilisateur ayant créé le manga
+        'is_validated', //Validé par admin
+        'image_path',   // image rajouté par admin
     ];
 
     /**

@@ -1,37 +1,32 @@
-<?php 
+<?php
 
 namespace App\Http\Controllers;
 
 use App\Models\Manga;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class MangaController extends Controller
 {
-    // Affiche tous les mangas avec recherche avancée et filtres
+    // Affiche tous les mangas validés avec recherche avancée et filtres
     public function index(Request $request)
     {
-        $query = Manga::query();
+        $query = Manga::where('is_validated', true); // Affiche uniquement les mangas validés
 
         // Recherche avancée par mots-clés
         if ($request->filled('search')) {
             $searchTerm = $request->search;
-            $query->where('title', 'LIKE', "%{$searchTerm}%")
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('title', 'LIKE', "%{$searchTerm}%")
                   ->orWhere('author', 'LIKE', "%{$searchTerm}%")
                   ->orWhere('description', 'LIKE', "%{$searchTerm}%");
+            });
         }
 
         // Filtrer par genre
         if ($request->filled('genre')) {
             $query->where('genre', $request->genre);
-        }
-
-        // Filtrer par note moyenne
-        if ($request->filled('rating')) {
-            $rating = $request->rating;
-            $query->whereHas('ratings', function ($subQuery) use ($rating) {
-                $subQuery->havingRaw('AVG(rating) >= ?', [$rating]);
-            });
         }
 
         // Pagination des résultats
@@ -46,7 +41,7 @@ class MangaController extends Controller
         return view('mangas.create');
     }
 
-    // Enregistre un manga dans la base de données
+    // Enregistre un manga dans la base de données (en attente de validation)
     public function store(Request $request)
     {
         // Validation des données
@@ -71,27 +66,32 @@ class MangaController extends Controller
                 'regex:/^[a-zA-Z\s\-]{3,50}$/',
                 'max:50',
             ],
-        ],[
+        ], [
             'title.regex' => 'Le titre doit comporter entre 3 et 100 caractères alphanumériques.',
             'description.regex' => 'La description doit comporter entre 10 et 500 caractères valides.',
             'author.regex' => 'Le nom de l\'auteur doit comporter entre 3 et 50 lettres.',
         ]);
 
-        // Création du manga
+        // Création du manga en attente de validation
         Manga::create([
             'title' => $request->title,
             'description' => $request->description,
             'genre' => $request->genre,
             'author' => $request->author,
             'user_id' => Auth::id(), // Associe le manga à l'utilisateur connecté
+            'is_validated' => false, // Défini comme non validé
         ]);
 
-        return redirect()->route('mangas.index')->with('success', 'Manga ajouté avec succès !');
+        return redirect()->route('mangas.index')->with('success', 'Manga ajouté en attente de validation.');
     }
 
     // Affiche les détails d'un manga spécifique
     public function show(Manga $manga)
     {
+        if (!$manga->is_validated && !Auth::user()->is_admin) {
+            abort(403, 'Accès non autorisé.');
+        }
+
         return view('mangas.show', compact('manga'));
     }
 
@@ -117,30 +117,30 @@ class MangaController extends Controller
         // Validation des données
         $request->validate([
             'title' => [
-            'required',
-            'string',
-            'min:3',
-            'max:255',
-            'regex:/^[\pL\s\d\.\,\']+$/u', // Lettres, chiffres, espaces, certains caractères spéciaux
-        ],
-        'description' => [
-            'required',
-            'string',
-            'min:10',
-            'max:1000',
-        ],
-        'genre' => [
-            'required',
-            'string',
-            'in:' . implode(',', \App\Models\Manga::GENRES),
-        ],
-        'author' => [
-            'required',
-            'string',
-            'min:3',
-            'max:255',
-            'regex:/^[\pL\s\-]+$/u', // Lettres, espaces, tirets
-        ],
+                'required',
+                'string',
+                'min:3',
+                'max:255',
+                'regex:/^[\pL\s\d\.\,\']+$/u',
+            ],
+            'description' => [
+                'required',
+                'string',
+                'min:10',
+                'max:1000',
+            ],
+            'genre' => [
+                'required',
+                'string',
+                'in:' . implode(',', \App\Models\Manga::GENRES),
+            ],
+            'author' => [
+                'required',
+                'string',
+                'min:3',
+                'max:255',
+                'regex:/^[\pL\s\-]+$/u',
+            ],
         ]);
 
         // Mise à jour du manga

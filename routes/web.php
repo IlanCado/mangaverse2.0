@@ -8,7 +8,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 
-// Page d'accueil : liste des mangas
+// Page d'accueil : liste des mangas validés uniquement
 Route::get('/', [MangaController::class, 'index'])->name('home');
 
 // Routes nécessitant une connexion
@@ -43,4 +43,5 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
     Route::delete('/admin/mangas/{manga}', [AdminController::class, 'destroyManga'])->name('admin.mangas.destroy');
     Route::delete('/admin/users/{user}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy');
+    Route::post('/admin/mangas/{manga}/validate', [AdminController::class, 'validateManga'])->name('admin.mangas.validate');
 });

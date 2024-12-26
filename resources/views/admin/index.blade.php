@@ -42,9 +42,9 @@
         </table>
     </div>
 
-    <!-- Gestion des mangas -->
+    <!-- Gestion des mangas en attente -->
     <div class="mt-5">
-        <h2>Mangas</h2>
+        <h2>Mangas en attente</h2>
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
                 <tr>
@@ -57,7 +57,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($mangas as $manga)
+                @foreach($mangasPending as $manga)
                     <tr>
                         <td>{{ $manga->id }}</td>
                         <td>{{ $manga->title }}</td>
@@ -65,9 +65,53 @@
                         <td>{{ $manga->genre }}</td>
                         <td>{{ $manga->user->name ?? 'Utilisateur supprimé' }}</td>
                         <td>
-                            <!-- Modifier -->
-                            <a href="{{ route('mangas.edit', $manga) }}" class="btn btn-warning">Modifier</a>
-                            
+                            <!-- Formulaire de validation -->
+                            <form action="{{ route('admin.mangas.validate', $manga) }}" method="POST" enctype="multipart/form-data" style="display:inline;">
+                                @csrf
+                                @method('POST')
+                                <div class="mb-2">
+                                    <label for="image">Ajouter une image :</label>
+                                    <input type="file" name="image" class="form-control" accept="image/*">
+                                </div>
+                                <button class="btn btn-primary">Valider</button>
+                            </form>
+
+                            <!-- Supprimer -->
+                            <form action="{{ route('admin.mangas.destroy', $manga) }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-danger" onclick="return confirm('Confirmer la suppression ?')">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Gestion des mangas validés -->
+    <div class="mt-5">
+        <h2>Mangas validés</h2>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Titre</th>
+                    <th>Auteur</th>
+                    <th>Genre</th>
+                    <th>Créé par</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($mangasValidated as $manga)
+                    <tr>
+                        <td>{{ $manga->id }}</td>
+                        <td>{{ $manga->title }}</td>
+                        <td>{{ $manga->author }}</td>
+                        <td>{{ $manga->genre }}</td>
+                        <td>{{ $manga->user->name ?? 'Utilisateur supprimé' }}</td>
+                        <td>
                             <!-- Supprimer -->
                             <form action="{{ route('admin.mangas.destroy', $manga) }}" method="POST" style="display:inline;">
                                 @csrf
