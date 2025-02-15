@@ -46,7 +46,7 @@ class CommentController extends Controller
     public function edit(Comment $comment)
     {
         if ($comment->user_id !== Auth::id() && !Auth::user()->is_admin) {
-            return redirect()->back()->with('error', 'Vous n\'avez pas la permission.');
+            abort(403); // Modification ici : Retourne une erreur 403 au lieu d'une redirection
         }
 
         return view('comments.edit', compact('comment'));
@@ -62,7 +62,7 @@ class CommentController extends Controller
     public function update(Request $request, Comment $comment)
     {
         if ($comment->user_id !== Auth::id() && !Auth::user()->is_admin) {
-            return redirect()->back()->with('error', 'Vous n\'avez pas la permission.');
+            abort(403); // Modification ici : Retourne une erreur 403 au lieu d'une redirection
         }
 
         $request->validate([
@@ -85,7 +85,7 @@ class CommentController extends Controller
     public function destroy(Comment $comment)
     {
         if ($comment->user_id !== Auth::id() && !Auth::user()->is_admin) {
-            return redirect()->back()->with('error', 'Vous n\'avez pas la permission.');
+            abort(403); // Modification ici : Retourne une erreur 403 au lieu d'une redirection
         }
 
         $comment->delete();
