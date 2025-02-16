@@ -51,6 +51,17 @@
         <div class="col-md-12">
             <h2>Commentaires</h2>
 
+            <!-- Affichage des erreurs -->
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <!-- Liste des commentaires -->
             @if($manga->comments->where('parent_id', null)->isEmpty())
                 <p>Aucun commentaire pour ce manga.</p>
@@ -59,10 +70,10 @@
                     @foreach($manga->comments->where('parent_id', null) as $comment)
                         <li class="list-group-item">
                             <div class="d-flex justify-content-between">
-                                <div>
+                                <div class="comment-text">
                                     <strong>{{ $comment->user->name }}</strong>
                                     <span class="text-muted">· {{ $comment->created_at->diffForHumans() }}</span>
-                                    <p>{{ $comment->content }}</p>
+                                    <p class="comment-content">{{ $comment->content }}</p>
                                 </div>
                                 <div>
                                     @if(auth()->id() === $comment->user_id || auth()->user()->is_admin)
@@ -82,10 +93,10 @@
                                     @foreach($comment->replies as $reply)
                                         <li class="list-group-item">
                                             <div class="d-flex justify-content-between">
-                                                <div>
+                                                <div class="comment-text">
                                                     <strong>{{ $reply->user->name }}</strong>
                                                     <span class="text-muted">· {{ $reply->created_at->diffForHumans() }}</span>
-                                                    <p>{{ $reply->content }}</p>
+                                                    <p class="comment-content">{{ $reply->content }}</p>
                                                 </div>
                                                 <div>
                                                     @if(auth()->id() === $reply->user_id || auth()->user()->is_admin)
@@ -108,7 +119,7 @@
                                 <form action="{{ route('comments.reply', $comment) }}" method="POST" class="mt-3">
                                     @csrf
                                     <div class="mb-3">
-                                        <textarea name="content" rows="2" class="form-control" placeholder="Répondre à ce commentaire..." required></textarea>
+                                        <textarea name="content" rows="2" class="form-control comment-textarea" placeholder="Répondre à ce commentaire..." required></textarea>
                                     </div>
                                     <button type="submit" class="btn btn-secondary btn-sm">Répondre</button>
                                 </form>
@@ -123,7 +134,7 @@
                 <form action="{{ route('comments.store', $manga) }}" method="POST" class="mt-4">
                     @csrf
                     <div class="mb-3">
-                        <textarea name="content" rows="3" class="form-control" placeholder="Ajouter un commentaire..." required></textarea>
+                        <textarea name="content" rows="3" class="form-control comment-textarea" placeholder="Ajouter un commentaire..." required></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary">Commenter</button>
                 </form>
@@ -163,6 +174,26 @@
 </script>
 
 <style>
+    .comment-content {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    white-space: pre-wrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Coupe proprement le texte s'il est trop long */
+}
+
+.comment-text {
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.comment-textarea {
+    max-length: 1000;
+    resize: vertical; /* Empêche l'agrandissement infini */
+}
+
+
     .interactive-rating .star {
         font-size: 2.5rem;
         color: #ccc;

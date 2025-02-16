@@ -20,7 +20,7 @@ class CommentController extends Controller
      *
      * @param Request $request La requête HTTP contenant le contenu du commentaire.
      * @param Manga $manga Le manga auquel le commentaire est associé.
-     * @return \Illuminate\Http\RedirectResponse Redirige vers la page du manga avec un message de succès.
+     * @return \Illuminate\Http\RedirectResponse Redirige vers la page du manga avec un message de succès ou une erreur.
      */
     public function store(Request $request, Manga $manga)
     {
@@ -41,12 +41,12 @@ class CommentController extends Controller
      * Affiche le formulaire d'édition d'un commentaire.
      *
      * @param Comment $comment Le commentaire à modifier.
-     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse La vue du formulaire ou redirection en cas d'erreur.
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse La vue du formulaire ou une erreur 403.
      */
     public function edit(Comment $comment)
     {
-        if ($comment->user_id !== Auth::id() && !Auth::user()->is_admin) {
-            abort(403); // Modification ici : Retourne une erreur 403 au lieu d'une redirection
+        if ($comment->user_id !== Auth::id() && !optional(Auth::user())->is_admin) {
+            abort(403, 'Vous n\'avez pas la permission de modifier ce commentaire.');
         }
 
         return view('comments.edit', compact('comment'));
@@ -57,12 +57,12 @@ class CommentController extends Controller
      *
      * @param Request $request La requête HTTP contenant les nouvelles données du commentaire.
      * @param Comment $comment Le commentaire à mettre à jour.
-     * @return \Illuminate\Http\RedirectResponse Redirige vers la page du manga associé avec un message de succès.
+     * @return \Illuminate\Http\RedirectResponse Redirige vers la page du manga associé avec un message de succès ou une erreur.
      */
     public function update(Request $request, Comment $comment)
     {
-        if ($comment->user_id !== Auth::id() && !Auth::user()->is_admin) {
-            abort(403); // Modification ici : Retourne une erreur 403 au lieu d'une redirection
+        if ($comment->user_id !== Auth::id() && !optional(Auth::user())->is_admin) {
+            abort(403, 'Vous n\'avez pas la permission de modifier ce commentaire.');
         }
 
         $request->validate([
@@ -80,12 +80,12 @@ class CommentController extends Controller
      * Supprime un commentaire.
      *
      * @param Comment $comment Le commentaire à supprimer.
-     * @return \Illuminate\Http\RedirectResponse Redirige vers la page du manga associé avec un message de succès.
+     * @return \Illuminate\Http\RedirectResponse Redirige vers la page du manga associé avec un message de succès ou une erreur.
      */
     public function destroy(Comment $comment)
     {
-        if ($comment->user_id !== Auth::id() && !Auth::user()->is_admin) {
-            abort(403); // Modification ici : Retourne une erreur 403 au lieu d'une redirection
+        if ($comment->user_id !== Auth::id() && !optional(Auth::user())->is_admin) {
+            abort(403, 'Vous n\'avez pas la permission de supprimer ce commentaire.');
         }
 
         $comment->delete();

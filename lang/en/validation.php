@@ -97,7 +97,7 @@ return [
         'array' => 'Le champ :attribute ne doit pas avoir plus de :max éléments.',
         'file' => 'Le champ :attribute ne doit pas être supérieur à :max kilo-octets.',
         'numeric' => 'Le champ :attribute ne doit pas être supérieur à :max.',
-        'string' => 'Le champ :attribute ne doit pas dépasser :max caractères.',
+        'string' => 'Votre commentaire est trop long. Veuillez le raccourcir à :max caractères.',
     ],
     'max_digits' => 'Le champ :attribute ne doit pas avoir plus de :max chiffres.',
     'mimes' => 'Le champ :attribute doit être un fichier de type : :values.',
