@@ -20,13 +20,19 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [MangaController::class, 'index'])->name('home');
 
 /**
+ * Routes accessibles à tous
+ * Tout les utilisateurs peuvent accéder à cette route 
+ */
+Route::get('mangas/{manga}', [MangaController::class, 'show'])->name('mangas.show');
+
+/**
  * Routes nécessitant une connexion.
  * Les utilisateurs doivent être connectés pour accéder à ces routes.
  */
 Route::middleware(['auth'])->group(function () {
     // Gestion des mangas : ajout, modification, suppression
     Route::resource('mangas', MangaController::class)->only([
-        'index', 'show', 'create', 'store', 'edit', 'update', 'destroy',
+        'index', 'create', 'store', 'edit', 'update', 'destroy',
     ]);
 
     // Tableau de bord

@@ -76,7 +76,7 @@
                                     <p class="comment-content">{{ $comment->content }}</p>
                                 </div>
                                 <div>
-                                    @if(auth()->id() === $comment->user_id || auth()->user()->is_admin)
+                                     @if(auth()->check() && (auth()->id() === $comment->user_id || auth()->user()->is_admin))
                                         <a href="{{ route('comments.edit', $comment) }}" class="btn btn-warning btn-sm">Modifier</a>
                                         <form action="{{ route('comments.destroy', $comment) }}" method="POST" style="display:inline;">
                                             @csrf

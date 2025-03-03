@@ -114,10 +114,12 @@ class MangaController extends Controller
      */
     public function show(Manga $manga)
     {
-        if (!$manga->is_validated && !Auth::user()->is_admin) {
-            abort(403, 'Accès non autorisé.');
+        if (!$manga->is_validated) {
+            if (!Auth::check() || !Auth::user()->is_admin) {
+                abort(403, 'Accès non autorisé.');
+            }
         }
-
+    
         return view('mangas.show', compact('manga'));
     }
 
