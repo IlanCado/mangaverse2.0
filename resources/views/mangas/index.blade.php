@@ -4,6 +4,13 @@
 <div class="container">
     <h1 class="mb-4">Liste des mangas</h1>
 
+     <!-- Affichage des messages flash -->
+     @if(session('info'))
+        <div class="alert alert-info">
+            {{ session('info') }}
+        </div>
+    @endif
+
     <!-- Formulaire de filtres et de tri -->
     <form action="{{ route('mangas.index') }}" method="GET" class="mb-4">
         <div class="row">

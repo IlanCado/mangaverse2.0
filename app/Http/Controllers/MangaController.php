@@ -102,7 +102,7 @@ class MangaController extends Controller
             'is_validated' => false,
         ]);
 
-        return redirect()->route('mangas.index')->with('success', 'Manga ajouté en attente de validation.');
+        return redirect()->route('mangas.index')->with('info', 'Manga en attente de validation.');
     }
 
     /**
