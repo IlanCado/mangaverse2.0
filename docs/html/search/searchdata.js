@@ -1,10 +1,11 @@
 var indexSectionsWithContent =
 {
-  0: "$_abcdeghilmnprstuv",
+  0: "$_abcdeghilmnprstuvw",
   1: "acdeglmnpruv",
   2: "a",
-  3: "_abcdehimprstuv",
-  4: "$"
+  3: "w",
+  4: "_abcdehimprstuv",
+  5: "$"
 };
 
 var indexSectionNames =
@@ -12,8 +13,9 @@ var indexSectionNames =
   0: "all",
   1: "classes",
   2: "namespaces",
-  3: "functions",
-  4: "variables"
+  3: "files",
+  4: "functions",
+  5: "variables"
 };
 
 var indexSectionLabels =
@@ -21,7 +23,8 @@ var indexSectionLabels =
   0: "Tout",
   1: "Classes",
   2: "Espaces de nommage",
-  3: "Fonctions",
-  4: "Variables"
+  3: "Fichiers",
+  4: "Fonctions",
+  5: "Variables"
 };
 
