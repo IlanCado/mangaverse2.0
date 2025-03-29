@@ -27,14 +27,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [MangaController::class, 'index'])->name('home');
 
 /**
- * Affichage des détails d'un manga.
- */
-Route::get('mangas/{manga}', [MangaController::class, 'show'])->name('mangas.show');
-
-/**
  * Liste des mangas avec filtres et recherche (accessible à tous).
  */
 Route::get('mangas', [MangaController::class, 'index'])->name('mangas.index');
+
+/**
+ * Affichage des détails d'un manga.
+ */
+Route::get('mangas/{manga}', [MangaController::class, 'show'])->name('mangas.show');
 
 // ==========================================
 // Routes nécessitant une connexion (authentification obligatoire)
@@ -42,10 +42,15 @@ Route::get('mangas', [MangaController::class, 'index'])->name('mangas.index');
 Route::middleware(['auth'])->group(function () {
 
     /**
+     * Affichage du formulaire de création d'un manga.
+     */
+    Route::get('mangas/create', [MangaController::class, 'create'])->name('mangas.create');
+
+    /**
      * Gestion des mangas (ajout, modification, suppression).
      */
     Route::resource('mangas', MangaController::class)->only([
-        'create', 'store', 'edit', 'update', 'destroy',
+        'store', 'edit', 'update', 'destroy',
     ]);
 
     /**
