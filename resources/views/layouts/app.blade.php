@@ -93,6 +93,10 @@
                 <li class="nav-item mx-2">
                     <a class="nav-link text-white" href="{{ route('home') }}">Explorer les Mangas</a>
                 </li>
+                <!-- Lien GLPI  -->
+                <li class="nav-item mx-2">
+                    <a class="nav-link text-white" href="https://support.mangaverse.blog:50274" target="_blank">Support</a>
+                </li>
                 @auth
                     <li class="nav-item mx-2">
                         <a class="nav-link text-white" href="{{ route('dashboard') }}">Profil</a>
